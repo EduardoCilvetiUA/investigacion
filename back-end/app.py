@@ -4,6 +4,10 @@ import random
 
 
 app = Flask(__name__)
+@app.route('/hello', methods=['GET'])
+def hello():
+    return jsonify({'message': 'Hello World!'})
+
 @app.route('/random_image', methods=['GET'])
 def random_image():
     dataset_path = 'Datasets/IKEA/train'

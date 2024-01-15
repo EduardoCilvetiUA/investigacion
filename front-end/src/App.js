@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CanvasDraw from 'react-canvas-draw';
 import Button from 'react-bootstrap/Button';
 
@@ -10,6 +10,19 @@ function App() {
   const canvasRef = useRef();
   // Asumiendo que tienes un estado para la URL de datos de la imagen
   const [imageDataUrl, setImageDataUrl] = useState(null);
+
+  const [data, setData] = useState([{}])
+
+  useEffect(() => {
+    fetch("/random_image")
+      .then(res => res.blob()) // procesa la respuesta como Blob
+      .then(blob => {
+        // crea una URL de objeto desde el Blob
+        const objectUrl = URL.createObjectURL(blob);
+        setData(objectUrl);
+      });
+  }, []);
+
 
   // Función para obtener la URL de datos de la imagen del canvas
   const getCanvasImage = () => {
@@ -68,6 +81,7 @@ function App() {
   return (
     <div className="App">
       <h1>Herramienta dibujo en react</h1>
+      {data && <img src={data} alt="Random" />}
       <div className ="elementos-dibujos">
         <div className="image-container" style={{ marginRight: '50px', display: 'flex', flexDirection: 'column' }}>
           {imageDataUrl && <img src={imageDataUrl} alt="canvas" />}
