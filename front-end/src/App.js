@@ -2,6 +2,7 @@ import './App.css';
 import React, { useState, useRef, useEffect } from 'react';
 import CanvasDraw from 'react-canvas-draw';
 import Button from 'react-bootstrap/Button';
+import axios from 'axios';
 
 function App() {
   const [brushRadius, setBrushRadius] = useState(3);
@@ -10,19 +11,65 @@ function App() {
   const canvasRef = useRef();
   // Asumiendo que tienes un estado para la URL de datos de la imagen
   const [imageDataUrl, setImageDataUrl] = useState(null);
+  const [fileNameRaw, setFileNameRaw] = useState('');
 
-  const [data, setData] = useState([{}])
+  const [imageSrc, setImageSrc] = useState([{}])
+  const [imageName, setImageName] = useState('')
+  const [imageId, setImageId] = useState('')
 
   useEffect(() => {
-    fetch("/random_image")
-      .then(res => res.blob()) // procesa la respuesta como Blob
-      .then(blob => {
-        // crea una URL de objeto desde el Blob
-        const objectUrl = URL.createObjectURL(blob);
-        setData(objectUrl);
+    // Realiza una solicitud GET a la ruta '/random_image'
+    axios.get('/random_image', { responseType: 'blob' })
+      .then(response => {
+        // Crea una URL para la imagen a partir de la respuesta
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        setImageSrc(url);
+
+        // Obtiene el nombre de la imagen de los encabezados de la respuesta
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = '';
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+          if (fileNameMatch.length === 2){
+            fileName = fileNameMatch[1];
+            setFileNameRaw(fileName);
+            const nameWithoutId = fileName.replace(/_\d+\.jpg$/, '');
+            setImageName(nameWithoutId);
+            const idMatch = fileName.match(/_(\d+)\.jpg/);
+            if (idMatch && idMatch.length === 2){
+              const imageId = idMatch[1];
+              setImageId(imageId);
+              console.log(imageId)
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching image:', error);
       });
   }, []);
 
+
+  const UploadToFlask = async () => {
+    try {
+      const blob = await fetch(imageDataUrl).then(r => r.blob());
+  
+      const formData = new FormData();
+      formData.append('id', imageId);
+      formData.append('image_name', "sketch_" + fileNameRaw);
+      formData.append('file', blob, "sketch_" + fileNameRaw);
+      
+      axios.post('/upload_image', formData)
+        .then(response => {
+          console.log(response);
+        })
+        .catch(error => {
+          console.error('Error uploading image:', error);
+        });
+    } catch (error) {
+      console.error('Error fetching image:', error);
+    }
+  };  
 
   // Función para obtener la URL de datos de la imagen del canvas
   const getCanvasImage = () => {
@@ -34,7 +81,6 @@ function App() {
     getCanvasImage();
     if (canvasRef.current) {
       const data = canvasRef.current.getSaveData();
-      console.log(data);
 
     }
   };
@@ -81,7 +127,8 @@ function App() {
   return (
     <div className="App">
       <h1>Herramienta dibujo en react</h1>
-      {data && <img src={data} alt="Random" />}
+      <h2>Image Name: {imageName}</h2>
+      {imageSrc && <img src={imageSrc} alt="Random" />}
       <div className ="elementos-dibujos">
         <div className="image-container" style={{ marginRight: '50px', display: 'flex', flexDirection: 'column' }}>
           {imageDataUrl && <img src={imageDataUrl} alt="canvas" />}
@@ -138,6 +185,7 @@ function App() {
         </div>
 
       </div>
+      {imageDataUrl && <Button variant='primary' onClick={UploadToFlask} style={{ marginTop: '10px' }}>Subir datos a Flask</Button>}
     </div>
   );
 }
