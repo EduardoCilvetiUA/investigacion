@@ -13,11 +13,8 @@ function App() {
   const canvasRef = useRef();
   // Asumiendo que tienes un estado para la URL de datos de la imagen
   const [imageDataUrl, setImageDataUrl] = useState(null);
-  const [fileNameRaw, setFileNameRaw] = useState('');
 
-  const [imageSrc, setImageSrc] = useState([{}])
-  const [imageName, setImageName] = useState('')
-  const [imageId, setImageId] = useState('')
+  const [imageData, setImageData] = useState({ datos: {}, imagen: '' })
 
   const handleStartSketch = () => {
     setSketchStarted(true);
@@ -26,71 +23,30 @@ function App() {
   const newImage = () => {
     setSketchStarted(false);
     // Limpiar los estados relacionados con la imagen actual
-    setImageSrc(null);
-    setImageName('');
-    setImageId('');
-    setFileNameRaw('');
-    setImageDataUrl(null);
-
-    // Realizar una nueva solicitud para obtener una imagen aleatoria
-    axios.get('/random_image', { responseType: 'blob' })
-      .then(response => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        setImageSrc(url);
-
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = '';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-          if (fileNameMatch.length === 2) {
-            fileName = fileNameMatch[1];
-            setFileNameRaw(fileName);
-            const nameWithoutId = fileName.replace(/_\d+\.jpg$/, '');
-            setImageName(nameWithoutId);
-            const idMatch = fileName.match(/_(\d+)\.jpg/);
-            if (idMatch && idMatch.length === 2) {
-              const imageId = idMatch[1];
-              setImageId(imageId);
-            }
-          }
+    setImageData(null);
+    
+      const fetchData = async () => {
+        try {
+          const response = await axios.get('/get_image');
+          setImageData(response.data);
+        } catch (error) {
+          console.error('Error al obtener los datos:', error);
         }
-      })
-      .catch(error => {
-        console.error('Error fetching image:', error);
-      });
+      };
+      fetchData();
   };
 
 
   useEffect(() => {
-    // Realiza una solicitud GET a la ruta '/random_image'
-    axios.get('/random_image', { responseType: 'blob' })
-      .then(response => {
-        // Crea una URL para la imagen a partir de la respuesta
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        setImageSrc(url);
-
-        // Obtiene el nombre de la imagen de los encabezados de la respuesta
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = '';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-          if (fileNameMatch.length === 2) {
-            fileName = fileNameMatch[1];
-            setFileNameRaw(fileName);
-            const nameWithoutId = fileName.replace(/_\d+\.jpg$/, '');
-            setImageName(nameWithoutId);
-            const idMatch = fileName.match(/_(\d+)\.jpg/);
-            if (idMatch && idMatch.length === 2) {
-              const imageId = idMatch[1];
-              setImageId(imageId);
-              console.log(imageId)
-            }
-          }
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching image:', error);
-      });
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('/get_image');
+        setImageData(response.data);
+      } catch (error) {
+        console.error('Error al obtener los datos:', error);
+      }
+    };
+    fetchData();
   }, []);
 
 
@@ -99,13 +55,15 @@ function App() {
       const blob = await fetch(imageDataUrl).then(r => r.blob());
 
       const formData = new FormData();
-      formData.append('id', imageId);
-      formData.append('image_name', "sketch_" + fileNameRaw);
-      formData.append('file', blob, "sketch_" + fileNameRaw);
+      formData.append('id', imageData.datos.id);
+      formData.append('title', imageData.datos.title);
+      formData.append('company', imageData.datos.company);
+      formData.append('image', blob, imageData.datos.company +'_' + imageData.datos.title + '_' + imageData.datos.id + '.jpeg');
 
       axios.post('/upload_image', formData)
         .then(response => {
           console.log(response);
+          console.log(formData)
         })
         .catch(error => {
           console.error('Error uploading image:', error);
@@ -127,7 +85,6 @@ function App() {
     getCanvasImage();
     if (canvasRef.current) {
       const data = canvasRef.current.getSaveData();
-
     }
   };
 
@@ -174,9 +131,9 @@ function App() {
     <div className="App">
       {!sketchStarted && (
         <>
-          <h1>Herramienta dibujo en react</h1>
-          <h2>Image Name: {imageName}</h2>
-          {imageSrc && <img src={imageSrc} alt="Random" />}
+          <h1>Herramienta de dibujo en React</h1>
+          {imageData && <h2>Nombre de la imagen: {imageData.datos.title}</h2>}
+          {imageData && <img src={`data:image/jpeg;base64,${imageData.imagen}`} alt="Imagen" />}
           <Button variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
             Empezar a hacer el sketch
           </Button>
@@ -185,7 +142,7 @@ function App() {
       {sketchStarted && (
         <>
           <h1>Herramienta dibujo en react</h1>
-          <h2>Image Name: {imageName}</h2>
+          <h2>Nombre de la imagen: {imageData.datos.title}</h2>
           <div className="elementos-dibujos">
             <div className="image-container" style={{ marginRight: '50px', display: 'flex', flexDirection: 'column' }}>
               {imageDataUrl && <img src={imageDataUrl} alt="canvas" />}
