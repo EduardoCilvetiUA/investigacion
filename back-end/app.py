@@ -5,27 +5,37 @@ from werkzeug.utils import secure_filename
 import csv
 import base64
 
+def upload_to_csv(id, draw_name, company):
+    data = []
+    with open('Datasets/'+company+'/train.csv', 'r', encoding= 'utf-8', newline='') as f:
+        # Specify the delimiter as semicolon
+        reader = csv.DictReader(f, delimiter=';')
+        for row in reader:
+            if 'ProductId' in row and str(row['ProductId']) == str(id):
+                row['Sketch_name'] = draw_name
+                print(draw_name)
+                print(company)
+            data.append(row)
+
+    fieldnames = data[0].keys()
+    with open('Datasets/'+company+'/train.csv', 'w', encoding= 'utf-8', newline='') as f:
+        # Specify the delimiter as semicolon
+        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=';')
+        writer.writeheader()
+        writer.writerows(data)
+
+def buscar_id_csv(id, carpeta):
+    with open('Datasets/'+carpeta+'/train.csv', 'r', encoding= 'utf-8', newline='') as f:
+        # Specify the delimiter as semicolon
+        reader = csv.DictReader(f, delimiter=';')
+        for row in reader:
+            if 'ProductId' in row and str(row['ProductId']) == str(id):
+                return row['Title']
+    return ''
+
+
+
 app = Flask(__name__)
-@app.route('/hello', methods=['GET'])
-def hello():
-    return jsonify({'message': 'Hello World!'})
-
-@app.route('/random_image', methods=['GET'])
-
-def random_image():
-    base_path = 'Datasets'
-    dataset_folders = [f.path for f in os.scandir(base_path) if f.is_dir()]
-    
-    # Selecciona una carpeta aleatoria
-    random_folder = random.choice(dataset_folders) + '\\train'
-    
-    image_files = [f for f in os.listdir(random_folder) if f.endswith('.jpg') or f.endswith('.png')]
-    
-    # Selecciona una imagen aleatoria
-    random_image = random.choice(image_files)
-    
-    # Devuelve la imagen como un archivo adjunto en la respuesta
-    return send_file(os.path.join(random_folder, random_image), mimetype='image/jpeg', as_attachment=True)
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
@@ -54,34 +64,6 @@ def upload_image():
     # (por ejemplo, guardar información en una base de datos)
     return jsonify({'id': id, 'image_name': image_name, 'message': 'Image uploaded successfully'})
 
-
-def upload_to_csv(id, draw_name, company):
-    data = []
-    with open('Datasets/'+company+'/train.csv', 'r', encoding= 'utf-8', newline='') as f:
-        # Specify the delimiter as semicolon
-        reader = csv.DictReader(f, delimiter=';')
-        for row in reader:
-            if 'ProductId' in row and str(row['ProductId']) == str(id):
-                row['Sketch_name'] = draw_name
-                print(draw_name)
-                print(company)
-            data.append(row)
-
-    fieldnames = data[0].keys()
-    with open('Datasets/'+company+'/train.csv', 'w', encoding= 'utf-8', newline='') as f:
-        # Specify the delimiter as semicolon
-        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=';')
-        writer.writeheader()
-        writer.writerows(data)
-
-def buscar_id_csv(id, carpeta):
-    with open('Datasets/'+carpeta+'/train.csv', 'r', encoding= 'utf-8', newline='') as f:
-        # Specify the delimiter as semicolon
-        reader = csv.DictReader(f, delimiter=';')
-        for row in reader:
-            if 'ProductId' in row and str(row['ProductId']) == str(id):
-                return row['Title']
-    return ''
 
 
 @app.route('/get_image', methods=['GET'])
