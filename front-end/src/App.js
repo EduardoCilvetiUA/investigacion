@@ -12,9 +12,8 @@ function App() {
   const [selectedColor, setSelectedColor] = useState('black');
   const canvasRef = useRef();
   // Asumiendo que tienes un estado para la URL de datos de la imagen
-  const [imageDataUrl, setImageDataUrl] = useState(null);
-
-  const [imageData, setImageData] = useState({ datos: {}, imagen: '' })
+  const [imageData, setImageData] = useState(null)
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleStartSketch = () => {
     setSketchStarted(true);
@@ -24,16 +23,18 @@ function App() {
     setSketchStarted(false);
     // Limpiar los estados relacionados con la imagen actual
     setImageData(null);
-    
-      const fetchData = async () => {
-        try {
-          const response = await axios.get('/get_image');
-          setImageData(response.data);
-        } catch (error) {
-          console.error('Error al obtener los datos:', error);
-        }
-      };
-      fetchData();
+    setIsLoading(true);
+
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('/get_image');
+        setImageData(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error al obtener los datos:', error);
+      }
+    };
+    fetchData();
   };
 
 
@@ -42,6 +43,7 @@ function App() {
       try {
         const response = await axios.get('/get_image');
         setImageData(response.data);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error al obtener los datos:', error);
       }
@@ -50,15 +52,15 @@ function App() {
   }, []);
 
 
-  const UploadToFlask = async () => {
+  const UploadToFlask = async (dataUrl) => {
     try {
-      const blob = await fetch(imageDataUrl).then(r => r.blob());
+      const blob = await fetch(dataUrl).then(r => r.blob());
 
       const formData = new FormData();
       formData.append('id', imageData.datos.id);
       formData.append('title', imageData.datos.title);
       formData.append('company', imageData.datos.company);
-      formData.append('image', blob, imageData.datos.company +'_' + imageData.datos.title + '_' + imageData.datos.id + '.jpeg');
+      formData.append('image', blob, imageData.datos.company + '_' + imageData.datos.title + '_' + imageData.datos.id + '.jpeg');
 
       axios.post('/upload_image', formData)
         .then(response => {
@@ -75,19 +77,37 @@ function App() {
     }
   };
 
+  const downloadImageWithWhiteBackground = (dataUrl) => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    const image = new Image();
+    image.src = dataUrl;
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      context.fillStyle = '#fff'; // color de fondo
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0);
+
+      const whiteBackgroundImageUrl = canvas.toDataURL('image/jpeg');
+      // Actualizar el estado con la imagen en fondo blanco
+      UploadToFlask(whiteBackgroundImageUrl);
+    };
+  };
+
+
   // Función para obtener la URL de datos de la imagen del canvas
   const getCanvasImage = () => {
     const dataUrl = canvasRef.current.getDataURL();
-    setImageDataUrl(dataUrl);
+    downloadImageWithWhiteBackground(dataUrl);
   };
 
   const handleSave = () => {
     getCanvasImage();
-    if (canvasRef.current) {
-      const data = canvasRef.current.getSaveData();
-    }
   };
 
+  //Canvas
   const handleBrushSizeChange = (event) => {
     setBrushRadius(event.target.value);
   };
@@ -106,37 +126,66 @@ function App() {
     canvasRef.current.undo();
   }
 
-  const downloadImageWithWhiteBackground = () => {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
+  const DrawingControls = () => (
+    <div className="drawing-controls">
+      <Button variant="primary" onClick={handleClearCanvas} >
+        <i className="bi bi-eraser-fill"></i>
+      </Button>
+      <Button variant="primary" onClick={undo}>
+        <i className="bi bi-arrow-counterclockwise"></i>
+      </Button>
+      <label htmlFor="brushSize">
+        <i className="bi bi-brush"></i> Brush Size:
+      </label>
+      <input
+        id="brushSize"
+        type="range"
+        min="1"
+        max="5"
+        value={brushRadius}
+        onChange={handleBrushSizeChange}
+        style={{ marginLeft: '5px', marginBottom: '10px' }}
+      />
+      <label htmlFor="colorPicker">
+        <i className="bi bi-eyedropper"></i> Brush Color:
+      </label>
+      <input
+        id="colorPicker"
+        type="color"
+        value={selectedColor}
+        onChange={handleColorChange}
+        style={{ marginLeft: '5px', marginBottom: '10px' }}
+      />
+      <br />
+    </div>
+  );
 
-    const image = new Image();
-    image.src = imageDataUrl;
-    image.onload = () => {
-      canvas.width = image.width;
-      canvas.height = image.height;
-      context.fillStyle = '#fff'; // color de fondo
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(image, 0, 0);
 
-      const whiteBackgroundImageUrl = canvas.toDataURL('image/jpeg');
-      const link = document.createElement('a');
-      link.href = whiteBackgroundImageUrl;
-      link.download = 'image.jpeg';
-      link.click();
-    };
-  };
 
   return (
     <div className="App">
       {!sketchStarted && (
         <>
           <h1>Herramienta de dibujo en React</h1>
-          {imageData && <h2>Nombre de la imagen: {imageData.datos.title}</h2>}
-          {imageData && <img src={`data:image/jpeg;base64,${imageData.imagen}`} alt="Imagen" />}
-          <Button variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
-            Empezar a hacer el sketch
-          </Button>
+          <div className="imagen-boton">
+            {isLoading && !imageData &&
+              <div className="loader-container">
+                <div className="loader-1 center"><span></span></div>
+              </div>
+            }
+            {imageData && (
+              <>
+                <h2>Nombre de la imagen: {imageData.datos.title}</h2>
+                <div className="image-container">
+                  <img src={`data:image/jpeg;base64,${imageData.imagen}`} alt="Imagen" className="responsive-image" />
+                </div>
+                <Button variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
+                  Empezar a hacer el sketch
+                </Button>
+              </>
+            )}
+
+          </div>
         </>
       )}
       {sketchStarted && (
@@ -144,12 +193,6 @@ function App() {
           <h1>Herramienta dibujo en react</h1>
           <h2>Nombre de la imagen: {imageData.datos.title}</h2>
           <div className="elementos-dibujos">
-            <div className="image-container" style={{ marginRight: '50px', display: 'flex', flexDirection: 'column' }}>
-              {imageDataUrl && <img src={imageDataUrl} alt="canvas" />}
-              {imageDataUrl &&
-                <Button variant='primary' onClick={downloadImageWithWhiteBackground} style={{ marginTop: '10px' }}>Descargar imagen</Button>
-              }
-            </div>
             <div>
               <CanvasDraw
                 ref={canvasRef}
@@ -163,43 +206,9 @@ function App() {
               />
               <br />
             </div>
-            <div style={{ marginLeft: '50px', display: 'flex', flexDirection: 'column' }}>
-              <Button variant="primary" onClick={handleClearCanvas} style={{ marginTop: '10px', width: '40px', height: '40px' }}>
-                <i className="bi bi-eraser-fill"></i>
-              </Button>
-              <Button variant="primary" onClick={undo} style={{ marginTop: '10px', width: '40px', height: '40px' }}>
-                <i className="bi bi-arrow-counterclockwise"></i>
-              </Button>
-              <label htmlFor="brushSize">
-                <i className="bi bi-brush"></i> Brush Size:
-              </label>
-              <input
-                id="brushSize"
-                type="range"
-                min="1"
-                max="5"
-                value={brushRadius}
-                onChange={handleBrushSizeChange}
-                style={{ marginLeft: '5px', marginBottom: '10px' }}
-              />
-              <label htmlFor="colorPicker">
-                <i className="bi bi-eyedropper"></i> Brush Color:
-              </label>
-              <input
-                id="colorPicker"
-                type="color"
-                value={selectedColor}
-                onChange={handleColorChange}
-                style={{ marginLeft: '5px', marginBottom: '10px' }}
-              />
-              <Button variant="primary" onClick={handleSave} style={{ marginTop: '10px' }}>
-                Save
-              </Button>
-              <br />
-            </div>
-
+            <DrawingControls />
           </div>
-          {imageDataUrl && <Button variant='primary' onClick={UploadToFlask} style={{ marginTop: '10px' }}>Subir datos a Flask</Button>}
+          <Button variant='primary' onClick={handleSave} style={{ marginTop: '10px' }}>Subir datos a Flask</Button>
         </>
       )}
     </div>
