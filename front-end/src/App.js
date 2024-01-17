@@ -166,7 +166,7 @@ function App() {
     <div className="App">
       {!sketchStarted && (
         <>
-          <h1>Herramienta de dibujo en React</h1>
+          <h1>Herramienta dibujo en react</h1>
           <div className="imagen-boton">
             {isLoading && !imageData &&
               <div className="loader-container">
@@ -179,7 +179,7 @@ function App() {
                 <div className="image-container">
                   <img src={`data:image/jpeg;base64,${imageData.imagen}`} alt="Imagen" className="responsive-image" />
                 </div>
-                <Button variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
+                <Button className = 'boton-frontal'variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
                   Empezar a hacer el sketch
                 </Button>
               </>

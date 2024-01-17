@@ -1,7 +1,109 @@
 .App {
   text-align: center;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Pacifico', cursive;
+  color: #333; /* Cambié el color del texto principal */
+  font-weight: normal;
 }
+
+h1 {
+  font-weight: bold; /* Hace que los encabezados h1 y h2 sean más gruesos */
+
+  color: #000000; /* Cambié el color de los encabezados */
+}
+h1 {
+
+  color: #000000; /* Cambié el color de los encabezados */
+}
+
+body {
+  background-color: #ffd139; /* Cambié el color de fondo */
+}
+
+Button {
+  background-color: #28a745; /* Cambié el color de fondo del botón */
+  color: #fff; /* Cambié el color del texto del botón */
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+
+.Button:hover {
+  background-color: #218838; /* Cambié el color de fondo del botón al pasar el ratón */
+}
+
+.boton-frontal {
+  top: 0;
+  left: 0;
+  transition: all 0.15s linear 0s;
+  position: relative;
+  display: inline-block;
+  padding: 15px 25px;
+  background-color: #ffe800; /* Reemplaza "your-yellow-color" con el valor real */
+
+  text-transform: uppercase;
+  color: #404040; /* Reemplaza "your-brown-color" con el valor real */
+  font-family: arial;
+  letter-spacing: 1px;
+
+  box-shadow: -6px 6px 0 #404040; /* Reemplaza "your-brown-color" con el valor real */
+  text-decoration: none;
+
+  &:hover {
+    top: 3px;
+    left: -3px;
+    box-shadow: -3px 3px 0 #404040; /* Reemplaza "your-brown-color" con el valor real */
+
+    &::after {
+      top: 1px;
+      left: -2px;
+      width: your-angle-o; /* Reemplaza "your-angle-o" con el valor real */
+      height: your-angle-o; /* Reemplaza "your-angle-o" con el valor real */
+    }
+
+    &::before {
+      bottom: -2px;
+      right: 1px;
+      width: your-angle-o; /* Reemplaza "your-angle-o" con el valor real */
+      height: your-angle-o; /* Reemplaza "your-angle-o" con el valor real */
+    }
+  }
+
+  &::after {
+    transition: all 0.15s linear 0s;
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: -4px;
+    width: your-angle; /* Reemplaza "your-angle" con el valor real */
+    height: your-angle; /* Reemplaza "your-angle" con el valor real */
+    background-color: #ffe800; /* Reemplaza "your-brown-color" con el valor real */
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+
+  &::before {
+    transition: all 0.15s linear 0s;
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    right: 2px;
+    width: your-angle; /* Reemplaza "your-angle" con el valor real */
+    height: your-angle; /* Reemplaza "your-angle" con el valor real */
+    background-color: #404040; /* Reemplaza "your-brown-color" con el valor real */
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+}
+
+.boton-frontal:hover {
+  background-color: #ffe800;
+  color: #404040; /* Reemplaza "your-brown-color" con el valor real */
+}
+
+
 
 .App-logo {
   height: 40vmin;
@@ -169,3 +271,5 @@
   margin-left: 5px;
   margin-bottom: 10px;
 }
+
+
