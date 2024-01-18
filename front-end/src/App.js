@@ -141,7 +141,7 @@ function App() {
         id="brushSize"
         type="range"
         min="1"
-        max="5"
+        max="10"
         value={brushRadius}
         onChange={handleBrushSizeChange}
         style={{ marginLeft: '5px', marginBottom: '10px' }}

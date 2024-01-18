@@ -137,16 +137,18 @@ Button {
 .elementos-dibujos {
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
   margin: 0 auto;
   padding: 0 20px;
-
 }
+
 @media screen and (max-width: 1080px) {
   .elementos-dibujos {
-    display: inline-block;
+    flex-direction: column; /* Cambia a dirección de columna en dispositivos más pequeños */
   }
 }
+
 
 
 .App-header {
