@@ -14,9 +14,42 @@ function App() {
   // Asumiendo que tienes un estado para la URL de datos de la imagen
   const [imageData, setImageData] = useState(null)
   const [isLoading, setIsLoading] = useState(true);
+  const [blurimage, setBlurImage] = useState(null);
+
+  const startCounter = async () => {
+    let counter = 0; // Estado para el contador
+    const intervalId = setInterval(async () => {
+      console.log(counter);
+
+      const formData = new FormData();
+      formData.append('company', imageData.datos.company);
+      formData.append('name_file', imageData.datos.file_name);
+      
+      formData.append('blur', counter);
+      counter += 5;
+      console.log(formData);
+
+      try {
+        const response = await axios.post('/get_blurred_image', formData);
+        setBlurImage(response.data);
+      } catch (error) {
+        console.error('Error al obtener los datos:', error);
+      }
+    }, 2000);
+
+    // Detener el intervalo después de 4 segundos (en milisegundos)
+    setTimeout(() => {
+      clearInterval(intervalId);
+    }, 20000);
+  };
+
+
+
+
 
   const handleStartSketch = () => {
     setSketchStarted(true);
+    startCounter();
   };
 
   const newImage = () => {
@@ -144,7 +177,7 @@ function App() {
         max="10"
         value={brushRadius}
         onChange={handleBrushSizeChange}
-        style={{ marginLeft: '5px', marginBottom: '10px'}}
+        style={{ marginLeft: '5px', marginBottom: '10px' }}
       />
       <label htmlFor="colorPicker">
         <i className="bi bi-eyedropper"></i> Brush Color:
@@ -159,6 +192,9 @@ function App() {
       <br />
     </div>
   );
+
+
+
 
 
 
@@ -179,7 +215,7 @@ function App() {
                 <div className="image-container">
                   <img src={`data:image/jpeg;base64,${imageData.imagen}`} alt="Imagen" className="responsive-image" />
                 </div>
-                <Button className = 'boton-frontal'variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
+                <Button className='boton-frontal' variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
                   Empezar a hacer el sketch
                 </Button>
               </>
@@ -192,23 +228,30 @@ function App() {
         <>
           <h1>Herramienta dibujo en react</h1>
           <h2>Nombre de la imagen: {imageData.datos.title}</h2>
-          <div className="elementos-dibujos">
-            <div>
-              <CanvasDraw
-                ref={canvasRef}
-                brushRadius={brushRadius}
-                brushColor={brushColor}
-                catenaryColor="black"
-                hideGrid={true}
-                hideInterface={true}
-                lazyRadius={0}
-                style={{ border: '3px solid #000', borderRadius: '10px' }}
-              />
-              <br />
+          {blurimage &&
+            <div className="elementos-dibujos-boton">
+              <div className="elementos-dibujos">
+                <div>
+                  <img src={`data:image/jpeg;base64,${blurimage.imagenblur}`} alt="Imagen" className="responsive-image" />
+                </div>
+                <div>
+                  <CanvasDraw
+                    ref={canvasRef}
+                    brushRadius={brushRadius}
+                    brushColor={brushColor}
+                    catenaryColor="black"
+                    hideGrid={true}
+                    hideInterface={true}
+                    lazyRadius={0}
+                    style={{ border: '3px solid #000', borderRadius: '10px' }}
+                  />
+                  
+                </div>
+                <DrawingControls />
+              </div>
+              <Button className="boton-frontal" variant='primary' onClick={handleSave} style={{ marginTop: '20px' }}>Subir datos a Flask</Button>
             </div>
-            <DrawingControls />
-          </div>
-          <Button className = "boton-frontal" variant='primary' onClick={handleSave} style={{ marginTop: '10px' }}>Subir datos a Flask</Button>
+          }
         </>
       )}
     </div>

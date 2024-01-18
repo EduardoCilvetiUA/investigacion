@@ -4,7 +4,17 @@ import random
 from werkzeug.utils import secure_filename
 import csv
 import base64
+import re
 
+import cv2
+import matplotlib.pyplot as plt
+from PIL import Image
+from io import BytesIO
+
+from ipywidgets import interact, widgets
+
+
+    
 def upload_to_csv(id, draw_name, company):
     data = []
     with open('Datasets/'+company+'/train.csv', 'r', encoding= 'utf-8', newline='') as f:
@@ -36,6 +46,45 @@ def buscar_id_csv(id, carpeta):
 
 
 app = Flask(__name__)
+
+@app.route('/get_blurred_image', methods=['POST'])
+def get_blurred_image():
+    if 'company' not in request.form or 'name_file' not in request.form or 'blur' not in request.form:
+        print("Missing parameters")
+        print(request.form)
+        return jsonify({'error': 'Missing parameters'}), 400
+    
+    sldr = lambda v, mi, ma, st: widgets.FloatSlider(
+        value=v,
+        min=mi,
+        max=ma,
+        step=st,
+        continuous_update=False
+    )
+    root = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(root, 'Datasets', request.form["company"], 'train', request.form["name_file"])
+    img_logo = cv2.imread(file_path, cv2.IMREAD_COLOR)
+    if img_logo is None:
+        print("Image not found")
+        return
+    img_logo = cv2.cvtColor(img_logo, cv2.COLOR_BGR2RGB)
+    x = request.form['blur']
+    x = int(x)
+    if x % 2 == 0:  # If x is even
+        x += 1
+    blur = cv2.GaussianBlur(img_logo,(x,x), 0)
+    im_pil = Image.fromarray(blur)
+    img_io = BytesIO()
+    im_pil.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    image_content = img_io.getvalue()
+
+    base64_image = base64.b64encode(image_content).decode('utf-8')
+
+
+    return jsonify({"imagenblur": base64_image})
+
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
@@ -75,8 +124,10 @@ def get_image():
         segundo_folder = random_folder.split('\\')[1]
         
         image_files = [f for f in os.listdir(random_folder) if f.endswith('.jpg') or f.endswith('.png')]
-
-        random_image = random.choice(image_files)
+        while True:
+            random_image = random.choice(image_files)
+            if re.match("^[a-zA-Z0-9_\-\. ]+$", random_image):
+                break
 
         id = random_image.split('_')[-1][:-4]
 
@@ -86,16 +137,17 @@ def get_image():
             found = True
 
     with open(random_folder + '\\' + random_image, "rb") as image_file:
-        random_image = base64.b64encode(image_file.read()).decode('utf-8')
+        random_image_file = base64.b64encode(image_file.read()).decode('utf-8')
 
     datos_json = {
         'id': id,
         'title': title,
         'company': segundo_folder,
+        'file_name': random_image
     }
 
 
-    return jsonify({'datos': datos_json, 'imagen': random_image})
+    return jsonify({'datos': datos_json, 'imagen': random_image_file})
 
 
 

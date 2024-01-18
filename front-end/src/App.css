@@ -145,11 +145,15 @@ Button {
   gap: 10px;
 }
 
+.elementos-dibujos > div {
+  align-self: center; /* Alinea el contenido verticalmente en el centro */
+}
+
 @media screen and (max-width: 1080px) {
   .elementos-dibujos {
-    flex-direction: column; /* Cambia a dirección de columna en dispositivos más pequeños */
+    flex-direction: column;
   }
-  .drawing-controls{
+  .drawing-controls {
     width: 100%;
     margin-left: 0;
   }
