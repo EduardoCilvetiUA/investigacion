@@ -10,7 +10,7 @@ h1 {
 
   color: #000000; /* Cambié el color de los encabezados */
 }
-h1 {
+h2 {
 
   color: #000000; /* Cambié el color de los encabezados */
 }
@@ -41,11 +41,12 @@ Button {
   position: relative;
   display: inline-block;
   padding: 15px 25px;
-  background-color: #ffe800; /* Reemplaza "your-yellow-color" con el valor real */
+  background-color: #ffd139; /* Reemplaza "your-yellow-color" con el valor real */
 
   text-transform: uppercase;
   color: #404040; /* Reemplaza "your-brown-color" con el valor real */
-  font-family: arial;
+  font-family: 'Pacifico', cursive;
+  font-weight: bold;
   letter-spacing: 1px;
 
   box-shadow: -6px 6px 0 #404040; /* Reemplaza "your-brown-color" con el valor real */
@@ -79,7 +80,7 @@ Button {
     left: -4px;
     width: your-angle; /* Reemplaza "your-angle" con el valor real */
     height: your-angle; /* Reemplaza "your-angle" con el valor real */
-    background-color: #ffe800; /* Reemplaza "your-brown-color" con el valor real */
+    background-color: #ffd139; /* Reemplaza "your-brown-color" con el valor real */
     transform: rotate(45deg);
     z-index: -1;
   }
@@ -99,7 +100,7 @@ Button {
 }
 
 .boton-frontal:hover {
-  background-color: #ffe800;
+  background-color: #ffd139;
   color: #404040; /* Reemplaza "your-brown-color" con el valor real */
 }
 
@@ -141,11 +142,16 @@ Button {
   width: 100%;
   margin: 0 auto;
   padding: 0 20px;
+  gap: 10px;
 }
 
 @media screen and (max-width: 1080px) {
   .elementos-dibujos {
     flex-direction: column; /* Cambia a dirección de columna en dispositivos más pequeños */
+  }
+  .drawing-controls{
+    width: 100%;
+    margin-left: 0;
   }
 }
 
@@ -258,15 +264,31 @@ Button {
 }
 
 .drawing-controls {
-  margin-left: 50px;
+  border: 5px solid #282c34;
+  border-radius: 5px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
+
 
 .drawing-controls button {
   margin-top: 10px;
   width: 90px;
   height: 40px;
+  border-radius: 0;
+  border: 1px solid #000000;
+  background-color: #28a745;
+  color: #000000;
+  font-size: 16px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ffe800;
+    color: #000000;
+    
+  }
 }
 
 .drawing-controls label {

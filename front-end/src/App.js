@@ -129,7 +129,7 @@ function App() {
   const DrawingControls = () => (
     <div className="drawing-controls">
       <Button variant="primary" onClick={handleClearCanvas} >
-        <i className="bi bi-eraser-fill"></i>
+        <i className="bi bi-trash"></i>
       </Button>
       <Button variant="primary" onClick={undo}>
         <i className="bi bi-arrow-counterclockwise"></i>
@@ -144,7 +144,7 @@ function App() {
         max="10"
         value={brushRadius}
         onChange={handleBrushSizeChange}
-        style={{ marginLeft: '5px', marginBottom: '10px' }}
+        style={{ marginLeft: '5px', marginBottom: '10px'}}
       />
       <label htmlFor="colorPicker">
         <i className="bi bi-eyedropper"></i> Brush Color:
@@ -208,7 +208,7 @@ function App() {
             </div>
             <DrawingControls />
           </div>
-          <Button variant='primary' onClick={handleSave} style={{ marginTop: '10px' }}>Subir datos a Flask</Button>
+          <Button className = "boton-frontal" variant='primary' onClick={handleSave} style={{ marginTop: '10px' }}>Subir datos a Flask</Button>
         </>
       )}
     </div>
