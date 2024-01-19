@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_file, request
+from flask import Flask, jsonify, request
 import os
 import random
 from werkzeug.utils import secure_filename

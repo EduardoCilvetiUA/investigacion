@@ -36,6 +36,7 @@ function App() {
       try {
         const response = await axios.post('/get_blurred_image', formData);
         setBlurImage(response.data);
+        console.log("sigo mandando datos");
       } catch (error) {
         console.error('Error al obtener los datos:', error);
       }
@@ -57,9 +58,6 @@ function App() {
 
   const handleStartSketch = () => {
     setSketchStarted(true);
-    setBlurImage(null);
-    clearInterval(intervalRef.current);
-    clearTimeout(timer.current);
     startCounter();
   };
 
@@ -148,6 +146,9 @@ function App() {
   };
 
   const handleSave = () => {
+    setBlurImage(null);
+    clearInterval(intervalRef.current);
+    clearTimeout(timer.current);
     getCanvasImage();
   };
 
