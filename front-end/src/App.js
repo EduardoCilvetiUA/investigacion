@@ -15,10 +15,14 @@ function App() {
   const [imageData, setImageData] = useState(null)
   const [isLoading, setIsLoading] = useState(true);
   const [blurimage, setBlurImage] = useState(null);
+  const intervalRef = useRef(null);
+  const timer = useRef(null);
+
 
   const startCounter = async () => {
     let counter = 0; // Estado para el contador
-    const intervalId = setInterval(async () => {
+
+    intervalRef.current = setInterval(async () => {
       console.log(counter);
 
       const formData = new FormData();
@@ -38,9 +42,13 @@ function App() {
     }, 2000);
 
     // Detener el intervalo después de 4 segundos (en milisegundos)
-    setTimeout(() => {
-      clearInterval(intervalId);
+
+
+    timer.current = setTimeout(() => {
+      clearInterval(intervalRef.current);
+      console.log('Intervalo detenido')
     }, 20000);
+    setBlurImage(null);
   };
 
 
@@ -49,6 +57,9 @@ function App() {
 
   const handleStartSketch = () => {
     setSketchStarted(true);
+    setBlurImage(null);
+    clearInterval(intervalRef.current);
+    clearTimeout(timer.current);
     startCounter();
   };
 
