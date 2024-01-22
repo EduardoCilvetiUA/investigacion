@@ -85,6 +85,7 @@ function App() {
       try {
         const response = await axios.get('/get_image');
         setImageData(response.data);
+        console.log(response.data.datos.file_name);
         setIsLoading(false);
       } catch (error) {
         console.error('Error al obtener los datos:', error);
@@ -240,13 +241,17 @@ function App() {
         <>
           <h1>Herramienta dibujo en react</h1>
           <h2>Nombre de la imagen: {imageData.datos.title}</h2>
-          {blurimage &&
             <div className="elementos-dibujos-boton">
               <div className="elementos-dibujos">
-                <div>
+                {blurimage &&
+                <div className='image-container'>
                   <img src={`data:image/jpeg;base64,${blurimage.imagenblur}`} alt="Imagen" className="responsive-image" />
-                </div>
-                <div>
+                </div>}
+                {!blurimage &&
+                  <div className='image-container'>
+                  <img src={`data:image/jpeg;base64,${imageData.imagen}`} alt="Imagen" className="responsive-image" />
+                </div>}
+                <div className='canvas-container'>
                   <CanvasDraw
                     ref={canvasRef}
                     brushRadius={brushRadius}
@@ -263,7 +268,6 @@ function App() {
               </div>
               <Button className="boton-frontal" variant='primary' onClick={handleSave} style={{ marginTop: '20px' }}>Subir datos a Flask</Button>
             </div>
-          }
         </>
       )}
     </div>

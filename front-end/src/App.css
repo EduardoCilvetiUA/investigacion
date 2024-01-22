@@ -1,12 +1,12 @@
 .App {
   text-align: center;
-  font-family: 'Pacifico', cursive;
+  font-family: 'Pangolin', cursive;
   color: #333; /* Cambié el color del texto principal */
   font-weight: normal;
 }
 
 h1 {
-  font-weight: bold; /* Hace que los encabezados h1 y h2 sean más gruesos */
+  font-size: 4.5rem; /* Cambié el tamaño de los encabezados */
 
   color: #000000; /* Cambié el color de los encabezados */
 }
@@ -16,7 +16,7 @@ h2 {
 }
 
 body {
-  background-color: #ffd139; /* Cambié el color de fondo */
+  background-color: #ecc956; /* Cambié el color de fondo */
 }
 
 Button {
@@ -35,17 +35,18 @@ Button {
 }
 
 .boton-frontal {
-  top: 0;
-  left: 0;
+  top: auto;
+  left: auto;
   transition: all 0.15s linear 0s;
-  position: relative;
+  position: static;
   display: inline-block;
   padding: 15px 25px;
   background-color: #ffd139; /* Reemplaza "your-yellow-color" con el valor real */
+  margin-top: 10px;
 
   text-transform: uppercase;
   color: #404040; /* Reemplaza "your-brown-color" con el valor real */
-  font-family: 'Pacifico', cursive;
+  font-family: 'Pangolin', cursive;
   font-weight: bold;
   letter-spacing: 1px;
 
@@ -130,7 +131,7 @@ Button {
 
   /* Establece un ancho máximo específico para pantallas más grandes */
   @media (min-width: 768px) {
-    max-width: 600px; /* Establece el ancho máximo para escritorio en píxeles */
+    max-width: 400px; /* Establece el ancho máximo para escritorio en píxeles */
   }
 }
 
@@ -145,9 +146,6 @@ Button {
   gap: 10px;
 }
 
-.elementos-dibujos > div {
-  align-self: center; /* Alinea el contenido verticalmente en el centro */
-}
 
 @media screen and (max-width: 1080px) {
   .elementos-dibujos {
@@ -187,7 +185,13 @@ Button {
 }
 
 .image-container {
-  margin-top: 50px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas-container {
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
 }
@@ -299,5 +303,4 @@ Button {
   margin-left: 5px;
   margin-bottom: 10px;
 }
-
 

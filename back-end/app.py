@@ -114,6 +114,16 @@ def upload_image():
     return jsonify({'id': id, 'image_name': image_name, 'message': 'Image uploaded successfully'})
 
 
+def add_white_background(image_path):
+    img = Image.open(image_path)
+    if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+        alpha = img.convert('RGBA').split()[-1]
+        bg = Image.new("RGBA", img.size, (255,255,255,255))
+        bg.paste(img, mask=alpha)
+        return bg.convert('RGB')
+    else:
+        return img
+
 
 @app.route('/get_image', methods=['GET'])
 def get_image():
@@ -136,6 +146,12 @@ def get_image():
         if title != '':
             found = True
 
+    with open(random_folder + '\\' + random_image, "rb") as image_file:
+        img_data = image_file.read()
+
+    img = add_white_background(BytesIO(img_data))
+
+    img.save(random_folder + '\\' + random_image, format="JPEG")
     with open(random_folder + '\\' + random_image, "rb") as image_file:
         random_image_file = base64.b64encode(image_file.read()).decode('utf-8')
 
