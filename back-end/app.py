@@ -10,6 +10,7 @@ import cv2
 import matplotlib.pyplot as plt
 from PIL import Image
 from io import BytesIO
+import numpy as np
 
 from ipywidgets import interact, widgets
 
@@ -63,9 +64,12 @@ def get_blurred_image():
     )
     root = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(root, 'Datasets', request.form["company"], 'train', request.form["name_file"])
-    img_logo = cv2.imread(file_path, cv2.IMREAD_COLOR)
+    
+
+    img_logo = cv2.imdecode(np.fromfile(file_path, np.uint8), cv2.IMREAD_COLOR)
     if img_logo is None:
         print("Image not found")
+        print(file_path)
         return
     img_logo = cv2.cvtColor(img_logo, cv2.COLOR_BGR2RGB)
     x = request.form['blur']
@@ -103,6 +107,7 @@ def upload_image():
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
 
+
     # Guarda la imagen con un nombre seguro
     filename = secure_filename(file.filename)
     file.save(os.path.join(upload_folder, filename))
@@ -122,6 +127,7 @@ def add_white_background(image_path):
         bg.paste(img, mask=alpha)
         return bg.convert('RGB')
     else:
+        img = img.convert('RGB')
         return img
 
 
@@ -134,10 +140,14 @@ def get_image():
         segundo_folder = random_folder.split('\\')[1]
         
         image_files = [f for f in os.listdir(random_folder) if f.endswith('.jpg') or f.endswith('.png')]
+        
+        random_image = random.choice(image_files)
+        """
         while True:
             random_image = random.choice(image_files)
             if re.match("^[a-zA-Z0-9_\-\. ]+$", random_image):
                 break
+        """
 
         id = random_image.split('_')[-1][:-4]
 

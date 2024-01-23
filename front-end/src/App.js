@@ -11,7 +11,7 @@ function App() {
   const [brushColor, setBrushColor] = useState('black');
   const [selectedColor, setSelectedColor] = useState('black');
   const canvasRef = useRef();
-  // Asumiendo que tienes un estado para la URL de datos de la imagen
+  // Datos imagenes URL
   const [imageData, setImageData] = useState(null)
   const [isLoading, setIsLoading] = useState(true);
   const [blurimage, setBlurImage] = useState(null);
@@ -77,6 +77,7 @@ function App() {
       }
     };
     fetchData();
+    console.log(imageData);
   };
 
 
@@ -228,6 +229,10 @@ function App() {
                 <div className="image-container">
                   <img src={`data:image/jpeg;base64,${imageData.imagen}`} alt="Imagen" className="responsive-image" />
                 </div>
+                <b>{imageData.datos.file_name}</b>
+                <div>
+                  <Button className="boton-frontal"onClick={newImage} style={{padding: '5px 10px'}}><i class="bi bi-arrow-clockwise"></i></Button>
+                </div>
                 <Button className='boton-frontal' variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
                   Empezar a hacer el sketch
                 </Button>
@@ -266,6 +271,9 @@ function App() {
                 </div>
                 <DrawingControls />
               </div>
+              <Button className="boton-frontal" variant="primary" style={{padding: '5px 10px', marginRight: "10px"}} onClick={newImage}>
+                <i className="bi bi-arrow-left-circle"></i>
+              </Button>
               <Button className="boton-frontal" variant='primary' onClick={handleSave} style={{ marginTop: '20px' }}>Subir datos a Flask</Button>
             </div>
         </>
