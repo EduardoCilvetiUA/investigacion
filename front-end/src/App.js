@@ -23,7 +23,6 @@ function App() {
     let counter = 0; // Estado para el contador
 
     intervalRef.current = setInterval(async () => {
-      console.log(counter);
 
       const formData = new FormData();
       formData.append('company', imageData.datos.company);
@@ -31,12 +30,10 @@ function App() {
       
       formData.append('blur', counter);
       counter += 5;
-      console.log(formData);
 
       try {
         const response = await axios.post('/get_blurred_image', formData);
         setBlurImage(response.data);
-        console.log("sigo mandando datos");
       } catch (error) {
         console.error('Error al obtener los datos:', error);
       }
@@ -47,7 +44,6 @@ function App() {
 
     timer.current = setTimeout(() => {
       clearInterval(intervalRef.current);
-      console.log('Intervalo detenido')
     }, 20000);
     setBlurImage(null);
   };
@@ -77,7 +73,6 @@ function App() {
       }
     };
     fetchData();
-    console.log(imageData);
   };
 
 
@@ -86,7 +81,6 @@ function App() {
       try {
         const response = await axios.get('/get_image');
         setImageData(response.data);
-        console.log(response.data.datos.file_name);
         setIsLoading(false);
       } catch (error) {
         console.error('Error al obtener los datos:', error);
@@ -108,8 +102,6 @@ function App() {
 
       axios.post('/upload_image', formData)
         .then(response => {
-          console.log(response);
-          console.log(formData)
         })
         .catch(error => {
           console.error('Error uploading image:', error);
@@ -229,9 +221,8 @@ function App() {
                 <div className="image-container">
                   <img src={`data:image/jpeg;base64,${imageData.imagen}`} alt="Imagen" className="responsive-image" />
                 </div>
-                <b>{imageData.datos.file_name}</b>
                 <div>
-                  <Button className="boton-frontal"onClick={newImage} style={{padding: '5px 10px'}}><i class="bi bi-arrow-clockwise"></i></Button>
+                  <Button className="boton-frontal"onClick={newImage} style={{padding: '5px 10px'}}><i className="bi bi-arrow-clockwise"></i></Button>
                 </div>
                 <Button className='boton-frontal' variant="primary" onClick={handleStartSketch} style={{ marginTop: '10px' }}>
                   Empezar a hacer el sketch
