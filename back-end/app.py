@@ -136,8 +136,8 @@ def get_image():
     found = False
     while found == False:
         dataset_folders = [f.path for f in os.scandir('Datasets') if f.is_dir()]
-        random_folder = random.choice(dataset_folders) + '\\train'
-        segundo_folder = random_folder.split('\\')[1]
+        random_folder = os.path.join(random.choice(dataset_folders), 'train')
+        segundo_folder = random_folder.split(os.path.sep)[1]
         
         image_files = [f for f in os.listdir(random_folder) if f.endswith('.jpg') or f.endswith('.png')]
         
@@ -156,13 +156,13 @@ def get_image():
         if title != '':
             found = True
 
-    with open(random_folder + '\\' + random_image, "rb") as image_file:
+    with open(random_folder + os.path.sep + random_image, "rb") as image_file:
         img_data = image_file.read()
 
     img = add_white_background(BytesIO(img_data))
 
-    img.save(random_folder + '\\' + random_image, format="JPEG")
-    with open(random_folder + '\\' + random_image, "rb") as image_file:
+    img.save(random_folder + os.path.sep + random_image, format="JPEG")
+    with open(random_folder + os.path.sep + random_image, "rb") as image_file:
         random_image_file = base64.b64encode(image_file.read()).decode('utf-8')
 
     datos_json = {
